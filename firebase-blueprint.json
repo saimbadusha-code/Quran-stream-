@@ -1,0 +1,218 @@
+{
+  "entities": {
+    "UserPreferences": {
+      "title": "UserPreferences",
+      "description": "Per-user preferences, favorites, and playback settings synced to Cloud Firestore.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID owning this preferences document."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Optional display name for account personalization."
+        },
+        "preferredLanguage": {
+          "type": "string",
+          "enum": ["en", "ar", "de", "es", "fr", "id", "ms", "ru"],
+          "description": "Selected interface locale code."
+        },
+        "themeMode": {
+          "type": "string",
+          "enum": ["dark", "light"],
+          "description": "Selected visual theme."
+        },
+        "reducedMotion": {
+          "type": "boolean",
+          "description": "Whether subtle animations and transitions are minimized."
+        },
+        "arabicFontScale": {
+          "type": "number",
+          "description": "Relative font scale multiplier for Quranic Arabic text."
+        },
+        "autoplayNext": {
+          "type": "boolean",
+          "description": "Whether playback automatically advances to the next queued track."
+        },
+        "defaultRepeatMode": {
+          "type": "string",
+          "enum": ["off", "one", "all"],
+          "description": "Default repeat mode for playback."
+        },
+        "ambientSoundId": {
+          "type": "string",
+          "enum": ["none", "rain", "rain_window", "stream", "ocean", "wind", "forest", "night", "calm"],
+          "description": "Selected optional non-musical ambient soundscape."
+        },
+        "ambientVolume": {
+          "type": "number",
+          "description": "Independent volume level (0.0 to 1.0) for ambient soundscape."
+        },
+        "preferredAudioSourceCode": {
+          "type": "string",
+          "enum": ["alquran_cloud", "everyayah", "quran_foundation"],
+          "description": "Optional preferred audio CDN source code."
+        },
+        "favoriteReciterIds": {
+          "type": "array",
+          "description": "Bounded list of saved reciter IDs."
+        },
+        "favoriteTrackIds": {
+          "type": "array",
+          "description": "Bounded list of saved track IDs."
+        },
+        "savedCollectionIds": {
+          "type": "array",
+          "description": "Bounded list of saved collection IDs."
+        },
+        "isDemoPremium": {
+          "type": "boolean",
+          "description": "Demo preview entitlement flag when external billing is not configured."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on creation via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on update via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "preferredLanguage",
+        "themeMode",
+        "reducedMotion",
+        "arabicFontScale",
+        "autoplayNext",
+        "defaultRepeatMode",
+        "ambientSoundId",
+        "ambientVolume",
+        "favoriteReciterIds",
+        "favoriteTrackIds",
+        "savedCollectionIds",
+        "isDemoPremium",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CustomPlaylist": {
+      "title": "CustomPlaylist",
+      "description": "User-authored custom recitation playlist with ordered track IDs.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID of the playlist owner."
+        },
+        "name": {
+          "type": "string",
+          "description": "Playlist title."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional playlist description."
+        },
+        "trackIds": {
+          "type": "array",
+          "description": "Ordered bounded list of track IDs in this playlist."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on creation via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on modification via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "description",
+        "trackIds",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ListeningEvent": {
+      "title": "ListeningEvent",
+      "description": "Recorded real playback session event used for Recently Played and Listening Insights.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID owning this listening event."
+        },
+        "trackId": {
+          "type": "string",
+          "description": "Identifier of the audio track played."
+        },
+        "surahNumber": {
+          "type": "integer",
+          "description": "Canonical Surah number (1-114)."
+        },
+        "surahName": {
+          "type": "string",
+          "description": "Display name of the Surah."
+        },
+        "reciterId": {
+          "type": "string",
+          "description": "Identifier of the reciter."
+        },
+        "reciterName": {
+          "type": "string",
+          "description": "Display name of the reciter."
+        },
+        "durationListenedSec": {
+          "type": "integer",
+          "description": "Actual seconds listened during this playback event."
+        },
+        "lastPositionMs": {
+          "type": "integer",
+          "description": "Last playback position in milliseconds for Continue Listening."
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "Listening session identifier."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "trackId",
+        "surahNumber",
+        "surahName",
+        "reciterId",
+        "reciterName",
+        "durationListenedSec",
+        "lastPositionMs",
+        "sessionId",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserPreferences" },
+      "description": "Per-user preferences, favorites, and saved collections isolated by Firebase UID."
+    },
+    "/users/{userId}/playlists/{playlistId}": {
+      "schema": { "$ref": "#/entities/CustomPlaylist" },
+      "description": "User-owned custom playlists isolated under the user's document."
+    },
+    "/users/{userId}/listening_events/{eventId}": {
+      "schema": { "$ref": "#/entities/ListeningEvent" },
+      "description": "User-owned recorded playback analytics events isolated under the user's document."
+    }
+  }
+}

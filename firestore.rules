@@ -1,0 +1,199 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isBoundedStringList(arr, maxLen) {
+      return arr is list &&
+             arr.size() <= maxLen &&
+             (arr.size() == 0 || (arr[0] is string && arr[0].size() >= 1 && arr[0].size() <= 128));
+    }
+
+    function isValidUserPreferences(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             (!('displayName' in data) || data.displayName == null || (data.displayName is string && data.displayName.size() <= 100)) &&
+             data.preferredLanguage is string && data.preferredLanguage in ['en', 'ar', 'de', 'es', 'fr', 'id', 'ms', 'ru'] &&
+             data.themeMode is string && data.themeMode in ['dark', 'light'] &&
+             data.reducedMotion is bool &&
+             data.arabicFontScale is number && data.arabicFontScale >= 0.8 && data.arabicFontScale <= 1.8 &&
+             data.autoplayNext is bool &&
+             data.defaultRepeatMode is string && data.defaultRepeatMode in ['off', 'one', 'all'] &&
+             data.ambientSoundId is string && data.ambientSoundId in ['none', 'rain', 'rain_window', 'stream', 'ocean', 'wind', 'forest', 'night', 'calm'] &&
+             data.ambientVolume is number && data.ambientVolume >= 0 && data.ambientVolume <= 1 &&
+             (!('preferredAudioSourceCode' in data) || data.preferredAudioSourceCode == null || (data.preferredAudioSourceCode is string && data.preferredAudioSourceCode.size() <= 32 && data.preferredAudioSourceCode in ['alquran_cloud', 'everyayah', 'quran_foundation'])) &&
+             isBoundedStringList(data.favoriteReciterIds, 100) &&
+             isBoundedStringList(data.favoriteTrackIds, 200) &&
+             isBoundedStringList(data.savedCollectionIds, 100) &&
+             data.isDemoPremium is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidCustomPlaylist(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 80 &&
+             data.description is string && data.description.size() <= 300 &&
+             isBoundedStringList(data.trackIds, 200) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidListeningEvent(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.trackId is string && data.trackId.size() >= 1 && data.trackId.size() <= 128 &&
+             data.surahNumber is int && data.surahNumber >= 1 && data.surahNumber <= 114 &&
+             data.surahName is string && data.surahName.size() >= 1 && data.surahName.size() <= 100 &&
+             data.reciterId is string && data.reciterId.size() >= 1 && data.reciterId.size() <= 64 &&
+             data.reciterName is string && data.reciterName.size() >= 1 && data.reciterName.size() <= 100 &&
+             data.durationListenedSec is int && data.durationListenedSec >= 1 && data.durationListenedSec <= 86400 &&
+             data.lastPositionMs is int && data.lastPositionMs >= 0 && data.lastPositionMs <= 86400000 &&
+             data.sessionId is string && data.sessionId.size() >= 1 && data.sessionId.size() <= 128 &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if false;
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       isValidUserPreferences(incoming()) &&
+                       incoming().keys().hasAll([
+                         'userId', 'preferredLanguage', 'themeMode', 'reducedMotion',
+                         'arabicFontScale', 'autoplayNext', 'defaultRepeatMode',
+                         'ambientSoundId', 'ambientVolume', 'favoriteReciterIds',
+                         'favoriteTrackIds', 'savedCollectionIds', 'isDemoPremium',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'displayName', 'preferredLanguage', 'themeMode',
+                         'reducedMotion', 'arabicFontScale', 'autoplayNext',
+                         'defaultRepeatMode', 'ambientSoundId', 'ambientVolume',
+                         'preferredAudioSourceCode', 'favoriteReciterIds',
+                         'favoriteTrackIds', 'savedCollectionIds', 'isDemoPremium',
+                         'createdAt', 'updatedAt'
+                       ]);
+
+      allow update: if isSignedIn() &&
+                       isValidId(userId) &&
+                       isValidUserPreferences(incoming()) &&
+                       request.auth.uid == userId &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       (
+                         // Action: Update Preferences / Favorites / Saved Collections
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'displayName', 'preferredLanguage', 'themeMode', 'reducedMotion',
+                           'arabicFontScale', 'autoplayNext', 'defaultRepeatMode',
+                           'ambientSoundId', 'ambientVolume', 'preferredAudioSourceCode',
+                           'favoriteReciterIds', 'favoriteTrackIds', 'savedCollectionIds',
+                           'isDemoPremium', 'updatedAt'
+                         ])
+                       );
+
+      allow delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+
+      match /playlists/{playlistId} {
+        allow get: if isSignedIn() &&
+                      isValidId(userId) &&
+                      isValidId(playlistId) &&
+                      request.auth.uid == userId &&
+                      existing().userId == request.auth.uid;
+
+        allow list: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       existing().userId == request.auth.uid;
+
+        allow create: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(playlistId) &&
+                         request.auth.uid == userId &&
+                         isValidCustomPlaylist(incoming()) &&
+                         incoming().keys().hasAll([
+                           'userId', 'name', 'description', 'trackIds', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'name', 'description', 'trackIds', 'createdAt', 'updatedAt'
+                         ]);
+
+        allow update: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(playlistId) &&
+                         isValidCustomPlaylist(incoming()) &&
+                         request.auth.uid == userId &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         (
+                           // Action: Edit Metadata or Reorder/Modify Tracks
+                           incoming().diff(existing()).affectedKeys().hasOnly([
+                             'name', 'description', 'trackIds', 'updatedAt'
+                           ])
+                         );
+
+        allow delete: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(playlistId) &&
+                         request.auth.uid == userId &&
+                         existing().userId == request.auth.uid;
+      }
+
+      match /listening_events/{eventId} {
+        allow get: if isSignedIn() &&
+                      isValidId(userId) &&
+                      isValidId(eventId) &&
+                      request.auth.uid == userId &&
+                      existing().userId == request.auth.uid;
+
+        allow list: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       existing().userId == request.auth.uid;
+
+        allow create: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(eventId) &&
+                         request.auth.uid == userId &&
+                         isValidListeningEvent(incoming()) &&
+                         incoming().keys().hasAll([
+                           'userId', 'trackId', 'surahNumber', 'surahName',
+                           'reciterId', 'reciterName', 'durationListenedSec',
+                           'lastPositionMs', 'sessionId', 'createdAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'trackId', 'surahNumber', 'surahName',
+                           'reciterId', 'reciterName', 'durationListenedSec',
+                           'lastPositionMs', 'sessionId', 'createdAt'
+                         ]);
+
+        allow update: if false;
+
+        allow delete: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(eventId) &&
+                         request.auth.uid == userId &&
+                         existing().userId == request.auth.uid;
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+
+    <!-- Serene morning sky gradient -->
+    <path android:pathData="M0,0h240v240h-240z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="120"
+                android:startY="0"
+                android:endX="120"
+                android:endY="150"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF5B7FA6" />
+                <item android:offset="0.55" android:color="#FF9BB5CF" />
+                <item android:offset="1.0" android:color="#FFD7E2EC" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Soft clouds -->
+    <path
+        android:fillColor="#66FFFFFF"
+        android:pathData="M34,54 Q58,38 86,50 Q112,36 138,52 Q156,48 172,58 L34,58 Z" />
+
+    <!-- Distant alpine ridge -->
+    <path
+        android:fillColor="#FF52687D"
+        android:pathData="M0,136 L48,88 L92,118 L148,72 L198,112 L240,86 L240,160 L0,160 Z" />
+
+    <!-- Snow highlights on peak -->
+    <path
+        android:fillColor="#99EBF3FA"
+        android:pathData="M148,72 L168,90 L154,94 L146,86 L136,95 L128,89 Z" />
+
+    <!--Lush valley slopes -->
+    <path
+        android:fillColor="#FF2E5438"
+        android:pathData="M0,148 Q68,116 132,146 L132,200 L0,200 Z" />
+    <path
+        android:fillColor="#FF3D6B44"
+        android:pathData="M104,152 Q178,118 240,142 L240,205 L104,205 Z" />
+
+    <!-- Calm reflective alpine lake -->
+    <path android:pathData="M0,156h240v84h-240z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="120"
+                android:startY="156"
+                android:endX="120"
+                android:endY="240"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF4A738C" />
+                <item android:offset="0.55" android:color="#FF2D5066" />
+                <item android:offset="1.0" android:color="#FF1A313F" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Foreground emerald meadow shore -->
+    <path
+        android:fillColor="#FF25472B"
+        android:pathData="M0,188 Q74,176 142,240 L0,240 Z" />
+    <path
+        android:fillColor="#FF4A7843"
+        android:pathData="M0,204 Q56,196 112,240 L0,240 Z" />
+</vector>

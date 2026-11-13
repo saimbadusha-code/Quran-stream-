@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="360dp"
+    android:height="480dp"
+    android:viewportWidth="360"
+    android:viewportHeight="480">
+
+    <!-- Deep emerald-obsidian manuscript backdrop -->
+    <path android:pathData="M0,0h360v480h-360z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="0"
+                android:startY="0"
+                android:endX="360"
+                android:endY="480"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF0D231B" />
+                <item android:offset="0.55" android:color="#FF121C1A" />
+                <item android:offset="1.0" android:color="#FF090C0E" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Subtle radial emerald-gold illumination -->
+    <path android:pathData="M180,210m-140,0a140,140 0,1 1,280 0a140,140 0,1 1,-280 0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="180"
+                android:centerY="210"
+                android:gradientRadius="140"
+                android:type="radial">
+                <item android:offset="0.0" android:color="#4422C55E" />
+                <item android:offset="0.6" android:color="#22D4B475" />
+                <item android:offset="1.0" android:color="#000D231B" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Classical octagonal geometric medallion -->
+    <path
+        android:strokeColor="#66D4B475"
+        android:strokeWidth="2.2"
+        android:pathData="M180,82 L270,118 L308,210 L270,302 L180,338 L90,302 L52,210 L90,118 Z" />
+    <path
+        android:strokeColor="#4422C55E"
+        android:strokeWidth="1.8"
+        android:pathData="M180,108 L252,138 L282,210 L252,282 L180,312 L108,282 L78,210 L108,138 Z" />
+    <path
+        android:strokeColor="#88D4B475"
+        android:strokeWidth="1.6"
+        android:pathData="M180,140m-70,0a70,70 0,1 1,140 0a70,70 0,1 1,-140 0" />
+</vector>
