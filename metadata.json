@@ -1,0 +1,6 @@
+{
+  "name": "Tilawah",
+  "description": "A refined, distraction-free Quran audio streaming platform featuring renowned reciters, curated collections, authentic Arabic text and translations, custom playlists, ambient focus soundscapes, and listening insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
